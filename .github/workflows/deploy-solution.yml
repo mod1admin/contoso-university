@@ -1,0 +1,27 @@
+name: Deploy CCaaSProjectWave1_Core
+
+on:
+  workflow_run:
+    workflows: ["Pack CCaaSProjectWave1_core"]
+    branches: [main]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: windows-latest
+    environment: production
+    steps:
+      - uses: dawidd6/action-download-artifact@v4
+        with:
+          workflow: pack-solution.yml
+          name: packed-solution
+      - uses: microsoft/powerplatform-actions/actions-install@v1
+      - uses: microsoft/powerplatform-actions/import-solution@v1
+        with:
+          environment-url: "https://orgb4e79742.crm.dynamics.com"
+          app-id: ${{ secrets.APP_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-file: CCaaSProjectWave1_core_managed.zip
